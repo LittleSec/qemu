@@ -1,7 +1,7 @@
 #include "plugin_api.h"
 
 #include <array>
-#include <capstone.h>
+#include <capstone/capstone.h>
 #include <inttypes.h>
 #include <limits>
 #include <sstream>

@@ -32,7 +32,7 @@
 #include "disas/disas.h"
 
 #ifdef CONFIG_CAPSTONE
-#include <capstone.h>
+#include <capstone/capstone.h>
 #if CS_API_MAJOR < 3 /* Check compatibility with capstone 3.x. */
 #error "capstone library >= 3.x required"
 #endif

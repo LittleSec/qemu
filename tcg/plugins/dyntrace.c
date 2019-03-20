@@ -33,7 +33,7 @@
 #include "tcg-plugin.h"
 
 #ifdef CONFIG_CAPSTONE
-#include <capstone.h>
+#include <capstone/capstone.h>
 /* Check compatibility with capstone 3.x. */
 #if CS_API_MAJOR < 3
 #error "dyncount plugin required capstone library >= 3.x. Please install from http://www.capstone-engine.org/."
