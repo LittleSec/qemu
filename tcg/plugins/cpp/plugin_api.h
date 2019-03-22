@@ -2,7 +2,7 @@
 
 #include "plugin_instrumentation_api.h"
 
-#include <capstone.h>
+#include <capstone/capstone.h>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
