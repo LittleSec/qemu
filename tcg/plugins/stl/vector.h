@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include "tcg-plugin.h"
+
 typedef struct memory_range {
     int address;
     int size;
@@ -13,6 +15,7 @@ typedef struct memory_range {
 typedef union vector_item {
     memory_range mr;
     int callframes;
+    target_ulong freed_obj;
 } vector_item;
 
 typedef struct vector
@@ -44,6 +47,10 @@ vector *PopBackVector(vector *head);
 size_t GetVectorSize(vector *head);
 
 vector* ReverseVector(vector *head);
+
+// int IsItemEquals(const vector_item vi1, const vector_item vi2);
+
+// int IsItemInVector(const vector_item data, vector *head);
 
 #endif // !VECTOR_H
 

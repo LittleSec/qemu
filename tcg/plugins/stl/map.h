@@ -1,34 +1,34 @@
 #ifndef MAP_H
 #define MAP_H
 
-typedef union key {
-    int k1;
-    long k2;
-} key;
+#include "tcg-plugin.h"
 
-typedef union value {
-    char v1;
-    char *v2;
-} value;
+typedef union key_map {
+    target_ulong allocated_obj_k;
+} key_map;
+
+typedef union value_map {
+    target_ulong allocated_obj_v;    
+} value_map;
 
 typedef struct map
 {
-    key k;
-    value v;
+    key_map k;
+    value_map v;
     struct map *next;
 } map;
 
 void PrintMap(map *head);
 
-int IsKeyEquals(const key k1, const key k2);
+int IsKeyEquals(const key_map k1, const key_map k2);
 
-map *CreatePair(const key k, const value v);
+map *CreatePair(const key_map k, const value_map v);
 
-value GetValueInMap(const key k, map *head);
+value_map GetValueInMap(const key_map k, map *head);
 
-int IsValueInMap(const key k, map *head);
+int IsValueInMap(const key_map k, map *head);
 
-map *SetValueInMap(const key k, const value v, map *head);
+map *SetValueInMap(const key_map k, const value_map v, map *head);
 
 map *DestoryMap(map *head);
 

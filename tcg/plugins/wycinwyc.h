@@ -6,21 +6,23 @@
 #include "stl/vector.h"
 #include "stl/map.h"
 
-vector* mappings; // mappings.item.memory_range
+extern vector* mappings; // mappings.item.memory_range
 
-target_ulong printf_addr;
-target_ulong fprintf_addr;
-target_ulong dprintf_addr;
-target_ulong sprintf_addr; 
-target_ulong snprintf_addr;
+//format specifier function-addresses for printf-tracking
+extern target_ulong printf_addr;
+extern target_ulong fprintf_addr;
+extern target_ulong dprintf_addr;
+extern target_ulong sprintf_addr;
+extern target_ulong snprintf_addr;
 
-target_ulong malloc_addr;
-target_ulong malloc_r_addr;
-target_ulong realloc_addr;
-target_ulong realloc_r_addr;
-target_ulong free_addr;
-target_ulong free_r_addr;
-target_ulong calloc_addr;
+//allocation/deallocation for heapobject-tracking
+extern target_ulong malloc_addr;
+extern target_ulong realloc_addr;
+extern target_ulong free_addr;
+extern target_ulong calloc_addr;
+extern target_ulong malloc_r_addr;
+extern target_ulong realloc_r_addr;
+extern target_ulong free_r_addr;
 
 
 #endif // ! WYCINWYC_H

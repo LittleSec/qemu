@@ -3,7 +3,7 @@
 #include "wycinwyc.h"
 #include "stl/vector.h"
 
-extern vector * mappings; // mappings.item.memory_range
+// static vector * mappings; // mappings.item.memory_range
 
 // extern void PrintVector(vector *head);
 
@@ -42,7 +42,7 @@ static uint32_t memory_op_size(TCGMemOp memflags)
     case MO_64:
         return 8;
     }
-    assert(false);
+    assert(0);
     return 0;
 }
 
@@ -99,7 +99,7 @@ static void after_gen_opc(const TCGPluginInterface *tpi, const TPIOpCode *op)
     const TCGOpcode opc = op->opcode->opc;
     uint64_t pc = op->pc;
 
-    bool is_load = false;
+    int is_load = 0;
 
     // detect load/store
     switch (opc)
@@ -107,18 +107,17 @@ static void after_gen_opc(const TCGPluginInterface *tpi, const TPIOpCode *op)
     // load/store from guest memory
     case INDEX_op_qemu_ld_i32:
     case INDEX_op_qemu_ld_i64:
-        is_load = true;
+        is_load = 1;
         break;
     case INDEX_op_qemu_st_i64:
     case INDEX_op_qemu_st_i32:
-        is_load = false;
+        is_load = 0;
         break;
     default:
         return;
     }
 
-    const TCGMemOpIdx flags = op->opargs[2];
-    const TCGMemOp memflags = get_memop(flags);
+    const TCGMemOp memflags = get_memop(op->opargs[2]);
     uint32_t memory_size = memory_op_size(memflags);
 
     CPUArchState *env = tpi_current_cpu_arch(tpi);
