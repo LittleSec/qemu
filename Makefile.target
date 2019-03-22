@@ -211,6 +211,29 @@ tcg-plugin-dyntrace.so: LIBS += $(CAP_LDFLAGS)
 tcg-plugin-coverage.o: CFLAGS += $(CAP_CFLAGS)
 tcg-plugin-coverage.so: LIBS += $(CAP_LDFLAGS)
 
+TCG_PLUGINS_STL := $(patsubst $(SRC_PATH)/tcg/plugins/stl/%.c,stl/stl-%.so,$(wildcard $(SRC_PATH)/tcg/plugins/stl/*.c))
+all: $(TCG_PLUGINS_STL)
+
+.SECONDARY: $(TCG_PLUGINS_STL:.so=.o)
+
+$(TCG_PLUGINS_STL:.so=.o): QEMU_CFLAGS += -fno-PIE -fPIC -DEMULATION_MODE=\"$(EMULATION_MODE)\"
+# $(TCG_PLUGINS_STL:.so=.o): $(SRC_PATH)/tcg/wycinwyc.h
+stl/stl-%.o: $(SRC_PATH)/tcg/plugins/stl/%.c
+	mkdir -p stl
+	$(call COMPILE_CC)
+
+$(TCG_PLUGINS_STL): LDFLAGS += -shared
+stl/stl-%.so: stl/stl-%.o
+	$(call LINK,$^)
+
+STL_OBJS=stl/stl-vector.o stl/stl-map.o
+
+tcg-plugin-segmemt_tracking.so: tcg-plugin-segmemt_tracking.o tcg-plugin-wycinwyc.o $(STL_OBJS)
+	$(call LINK,$^)
+
+tcg-plugin-heapobject_tracking.so: tcg-plugin-heapobject_tracking.o tcg-plugin-wycinwyc.o $(STL_OBJS)
+	$(call LINK,$^)
+
 # cxx plugin
 ifdef CONFIG_TCG_PLUGIN_CPP
 
