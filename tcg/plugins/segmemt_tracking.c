@@ -2,32 +2,83 @@
 #include "tcg-plugin.h"
 #include "wycinwyc.h"
 #include "stl/vector.h"
+#include "stl/cJSON.h"
 
-// static vector * mappings; // mappings.item.memory_range
+// vector * mappings; // mappings.item.memory_range
 
-// extern void PrintVector(vector *head);
 
-// extern vector *CreateNodeVector(const vector_item data);
+/* 
+json can't format! just one line. 
+*/
+vector *load_json(const char *filename)
+{
+	// read data from file
+	FILE *fp = fopen(filename, "r");
+	if (fp == NULL)
+	{
+		printf("file %s open failed.\n", filename);
+		return 0;
+	}
+	fseek(fp, 0, SEEK_END);
+	int filesize = ftell(fp);
+	// printf("filesize %d\n", filesize);
+	char *filedata = NULL;
 
-// extern vector *PushBackVector(const vector_item data, vector *head);
+	fseek(fp, 0, SEEK_SET);
 
-// extern void SwapVectorNode(vector *p1, vector *p2);
+	filedata = (char *)malloc(filesize + 1);
+	fgets(filedata, filesize + 1, fp);
+	// printf("%s\n", filedata);
+	fclose(fp);
 
-// extern vector *GetVectorEnd(vector *head);
+	// map json to struct memory_mapping
+	vector *root = (vector *)malloc(sizeof(vector));
+	root->next = NULL;
+	vector *pre_node = root;
 
-// extern int CmpVectorNode(const vector p1, const vector p2);
+	cJSON *pJson = cJSON_Parse(filedata);
+	cJSON *mem_map = cJSON_GetObjectItem(pJson, "memory_mapping");
 
-// extern void QuickSortVector(vector *head, vector *end);
+	int n = cJSON_GetArraySize(mem_map);
+	for (int i = 0; i < n; i++)
+	{
+		cJSON *mem = cJSON_GetArrayItem(mem_map, i);
 
-// extern void BubbleSortVector(vector *head);
+		int address = cJSON_GetObjectItem(mem, "address")->valueint;
+		// printf("address %d\n", address);
+		int size = cJSON_GetObjectItem(mem, "size")->valueint;
+		char *perms_str = cJSON_GetObjectItem(mem, "permissions")->valuestring;
+		char perms = 0;
+		perms += perms_str[0] == 'r' ? 1 : 0;
+		perms += perms_str[1] == 'w' ? 2 : 0;
+		perms += perms_str[2] == 'x' ? 4 : 0;
+		// printf("perms %s %d\n", perms_str, perms);
+		//bool file_backed;
+		int file_backed = cJSON_GetObjectItem(mem, "file") == NULL ? 0 : 1;
+		// printf("file_backed %d\n", file_backed);
+		pre_node->next = (vector *)malloc(sizeof(vector));
+		if (pre_node->next != NULL)
+		{
+            vector *new_node = pre_node->next;
+            memory_range new_mr;
+            new_mr.address = address;
+            new_mr.size = size;
+            new_mr.perms = perms;
+            new_mr.file_backed = file_backed;
+            vector_item vit1;
+            vit1.mr = new_mr;
+            new_node->item = vit1;
+			new_node->next = NULL;
+			pre_node = new_node;
+		}
+	}
 
-// extern vector *DestoryVector(vector *head);
-
-// extern vector *PopBackVector(vector *head);
-
-// extern size_t GetVectorSize(vector *head);
-
-// extern vector* ReverseVector(vector *head);
+	vector *ret = root->next;
+	free(root);
+    BubbleSortVector(ret);
+    // PrintVector(ret);
+	return ret;
+}
 
 static uint32_t memory_op_size(TCGMemOp memflags)
 {
@@ -147,28 +198,31 @@ static void after_gen_opc(const TCGPluginInterface *tpi, const TPIOpCode *op)
 
 void tpi_init(TCGPluginInterface *tpi)
 {
-    memory_range mr1 = {1610612736, 2097152, 5, 1};
-    memory_range mr2 = {0, 2097152, 5, 1};
-    memory_range mr3 = {536805376, 262144, 6, 0};
-    memory_range mr4 = {2684289024, 262144, 6, 0};
-    memory_range mr5 = {1073741824, 1342177280, 6, 0};
-    // PrintVector(mappings);
+    // memory_range mr1 = {1610612736, 2097152, 5, 1};
+    // memory_range mr2 = {0, 2097152, 5, 1};
+    // memory_range mr3 = {536805376, 262144, 6, 0};
+    // memory_range mr4 = {2684289024, 262144, 6, 0};
+    // memory_range mr5 = {1073741824, 1342177280, 6, 0};
+    // // PrintVector(mappings);
 
-    vector_item vit;
-    vit.mr = mr1;
-    mappings = CreateNodeVector(vit);
-    vit.mr = mr2;
-    mappings = PushBackVector(vit, mappings);
-    vit.mr = mr3;
-    mappings = PushBackVector(vit, mappings);
-    vit.mr = mr4;
-    mappings = PushBackVector(vit, mappings);
-    vit.mr = mr5;
-    mappings = PushBackVector(vit, mappings);
+    // vector_item vit;
+    // vit.mr = mr1;
+    // mappings = CreateNodeVector(vit);
+    // vit.mr = mr2;
+    // mappings = PushBackVector(vit, mappings);
+    // vit.mr = mr3;
+    // mappings = PushBackVector(vit, mappings);
+    // vit.mr = mr4;
+    // mappings = PushBackVector(vit, mappings);
+    // vit.mr = mr5;
+    // mappings = PushBackVector(vit, mappings);
     // PrintVector(mappings);
     // vector* mapend = GetVectorEnd(mappings);
     // QuickSortVector(mappings, mapend);
-    BubbleSortVector(mappings);
+    mappings = load_json("conf.json");
+    // PrintVector(mappings);
+    if(!mappings)
+        return 0;
     
     TPI_INIT_VERSION(tpi);
     TPI_DECL_FUNC_4(tpi, phys_mem_write_segment_cb, void, ptr, i64, i64, i64);

@@ -226,7 +226,7 @@ $(TCG_PLUGINS_STL): LDFLAGS += -shared
 stl/stl-%.so: stl/stl-%.o
 	$(call LINK,$^)
 
-STL_OBJS=stl/stl-vector.o stl/stl-map.o
+STL_OBJS=stl/stl-vector.o stl/stl-map.o stl/stl-cJSON.o
 
 tcg-plugin-segmemt_tracking.so: tcg-plugin-segmemt_tracking.o tcg-plugin-wycinwyc.o $(STL_OBJS)
 	$(call LINK,$^)
