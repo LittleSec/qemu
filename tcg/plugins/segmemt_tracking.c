@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "tcg-plugin.h"
 #include "wycinwyc.h"
 #include "stl/vector.h"
@@ -219,10 +220,20 @@ void tpi_init(TCGPluginInterface *tpi)
     // PrintVector(mappings);
     // vector* mapend = GetVectorEnd(mappings);
     // QuickSortVector(mappings, mapend);
-    mappings = load_json("conf.json");
+    const char *conffile;
+    conffile = getenv("CONF_FILE");
+    if(conffile == NULL)
+    {
+        printf("[!] env CONF_FILE=/abs/path/to/conf.json command");
+        return 0;
+    }
+    mappings = load_json(conffile);
     // PrintVector(mappings);
     if(!mappings)
+    {
+        printf("[-] Can't open mapping file!\n");
         return 0;
+    }
     
     TPI_INIT_VERSION(tpi);
     TPI_DECL_FUNC_4(tpi, phys_mem_write_segment_cb, void, ptr, i64, i64, i64);
