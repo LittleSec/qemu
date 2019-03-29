@@ -66,6 +66,7 @@
   void tcg_plugin_before_decode_instr(uint64_t pc);
   void tcg_plugin_after_gen_opc(TCGOp *opcode, uint8_t nb_args);
   const char *tcg_plugin_get_filename(void);
+  void tcg_plugin_set_filename(const char *filename);
 
 /***********************************************************************
  * TCG plugin interface.
@@ -374,6 +375,7 @@ static inline FILE *tpi_output(const TCGPluginInterface *tpi);
  * Translation block accesors
  * Not static so plugins do not depend on definition of TranslationBlock.
  */
+extern const TranslationBlock *tpi_tb(const TCGPluginInterface *tpi);
 extern uint64_t tpi_tb_address(const TranslationBlock *tb);
 extern uint32_t tpi_tb_size(const TranslationBlock *tb);
 extern uint32_t tpi_tb_icount(const TranslationBlock *tb);
@@ -516,6 +518,7 @@ static inline uint32_t tpi_guest_load32(const TCGPluginInterface *tpi,
 #   define tcg_plugin_before_decode_instr(pc)
 #   define tcg_plugin_after_gen_opc(tcg_opcode, nb_args)
 #   define tcg_plugin_get_filename() "<unknown>"
+#   define tcg_plugin_set_filename(f)
 #endif /* !CONFIG_TCG_PLUGIN */
 
 
